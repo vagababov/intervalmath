@@ -41,7 +41,7 @@ func TestCreationAndProps(t *testing.T) {
 		wantContains0 bool
 		wantPositive  bool
 		wantNegative  bool
-		inv           *Interval
+		wantInv           *Interval
 	}{
 		{"simple", 1.0, 2.0, false, false, true, false, &Interval{0.5, 1.0}},
 		{"with zero", -1.0, 1.0, false, true, false, false, nil},
@@ -70,9 +70,9 @@ func TestCreationAndProps(t *testing.T) {
 		}
 
 		// Inverse tests are more complex: can return nil or value.
-		if test.inv == nil {
-      if got := Inverse(i); got != nil {
-				t.Errorf("1/%v: got: %v want: nil", i, got)
+		if test.wantInv == nil {
+      if got, want := Inverse(i), test.wantInv; got != want {
+				t.Errorf("1/%v: got: %v want: %v", i, got, want)
 			}
 			// Test manually for both cases.
 			got1, got2 := InverseEx(i)
@@ -85,6 +85,10 @@ func TestCreationAndProps(t *testing.T) {
 				t.Errorf("Right 1/%v: got: %v want: %v", i, got2, want2)
 			}
 		} else {
+      // without zero, just check equality.
+      if got, want := Inverse(i), test.wantInv; !ApproximatelyEqual(got, want, defaultEpsilon) {
+        t.Errorf("1/%v: got: %v want: %v", i, got, want)
+      }
 		}
 	}
 }

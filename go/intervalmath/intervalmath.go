@@ -1,3 +1,6 @@
+// Package intervalmath contains types and functions to operate on interval
+// arithmetic.
+// See: https://en.wikipedia.org/wiki/Interval_arithmetic
 package intervalmath
 
 import (
@@ -19,10 +22,12 @@ func New(s, e float64) (*Interval, error) {
 	return &Interval{s, e}, nil
 }
 
+// Positive returns if interval is completely positive.
 func (i *Interval) Positive() bool {
 	return i.s > 0
 }
 
+// Negative returns if interval is completely negative.
 func (i *Interval) Negative() bool {
 	return i.e < 0
 }

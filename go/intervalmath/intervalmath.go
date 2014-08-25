@@ -55,7 +55,12 @@ func (i *Interval) Equals(o *Interval) bool {
 	return i.s == o.s && i.e == o.e
 }
 
+// apeq is approximate equality helper.
 func apeq(a, b, p float64) bool {
+	// Compute difference. If difference is NaN then two infinities are concerned.
+	// Test for their equality.
+	// If result is finite, then two finite numbers are concerned, compare with precision p.
+	// Otherwise it's number and infinity and those are definitely not equal to each other.
 	r := a - b
 	// If not a number then it's inf-inf
 	if math.IsNaN(r) {

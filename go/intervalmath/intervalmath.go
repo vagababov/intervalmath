@@ -39,25 +39,40 @@ func (i *Interval) Negative() bool {
 }
 
 // Equals returns if o is == equal to i. Beware of FP imprecision.
-// ApproximatelyEquals compares with given precion.
+// ApproximatelyEquals compares with given precision.
 func Equal(i, o *Interval) bool {
 	return i.Equals(o)
 }
 
-// ApproximatelyEquals returs if o is approximately equal to i.
-func AproximatelyEquals(i, o *Interval, precion float64) bool {
-	return i.ApproximatelyEquals(o, precion)
+// ApproximatelyEqual returs if o is approximately equal to i.
+func ApproximatelyEqual(i, o *Interval, precision float64) bool {
+	return i.ApproximatelyEquals(o, precision)
 }
 
 // Equals returns if o is == equal to i. Beware of FP imprecision.
-// ApproximatelyEquals compares with given precion.
+// ApproximatelyEquals compares with given precision.
 func (i *Interval) Equals(o *Interval) bool {
 	return i.s == o.s && i.e == o.e
 }
 
+func apeq(a, b, p float64) bool {
+	r := a - b
+	// If not a number then it's inf-inf
+	if math.IsNaN(r) {
+		return a == b
+	}
+	// If it's a number and not an infinity, i.e. both a and b are
+	// finite.
+	if !math.IsInf(r, 0) {
+		return math.Abs(r) < p
+	}
+	// Number and inf are not equal.
+	return false
+}
+
 // ApproximatelyEquals returs if o is approximately equal to this.
-func (i *Interval) ApproximatelyEquals(o *Interval, precion float64) bool {
-	return math.Abs(i.e-o.e) <= precion && math.Abs(i.s-o.s) <= precion
+func (i *Interval) ApproximatelyEquals(o *Interval, precision float64) bool {
+	return apeq(i.s, o.s, precision) && apeq(i.e, o.e, precision)
 }
 
 // ContainsZero returns true if interval contains 0.

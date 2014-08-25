@@ -1,6 +1,37 @@
 package intervalmath
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
+
+const defaultEpsilon = 0.0001
+
+func TestApeq(t *testing.T) {
+  tests := []struct{
+    l, r float64
+    want bool
+  }{
+    {0, 0, true},
+    {1/1., 2/2., true},
+    {1, 2, false},
+    {4, 4.000000001, true},
+    {3.9999999999, 4, true},
+    {math.Inf(-1), math.Inf(-1), true},
+    {math.Inf(1), math.Inf(1), true},
+    {math.Inf(-1), math.Inf(-1), true},
+    {math.Inf(1), 5, false},
+    {math.Inf(1)-math.Inf(1), 1, false},
+  }
+  for _, test := range tests {
+    if got, want := apeq(test.r, test.l, defaultEpsilon), test.want; got != want {
+      t.Errorf("%g ~ %g: got: %v want: %v", test.r, test.l, got, want)
+    }
+    if got, want := apeq(test.l, test.r, defaultEpsilon), test.want; got != want {
+      t.Errorf("%g ~ %g: got: %v want: %v", test.l, test.r, got, want)
+    }
+  }
+}
 
 func TestCreationAndProps(t *testing.T) {
 	tests := []struct {
@@ -36,6 +67,24 @@ func TestCreationAndProps(t *testing.T) {
 		}
 		if got, want := i.Negative(), test.wantNegative; got != want {
 			t.Errorf("%v.Negative: got: %v want: %v", i, got, want)
+		}
+
+		// Inverse tests are more complex: can return nil or value.
+		if test.inv == nil {
+      if got := Inverse(i); got != nil {
+				t.Errorf("1/%v: got: %v want: nil", i, got)
+			}
+			// Test manually for both cases.
+			got1, got2 := InverseEx(i)
+			want1, want2 := &Interval{math.Inf(-1), 1. / test.s}, &Interval{1. / test.e, math.Inf(1)}
+			if !ApproximatelyEqual(got1, want1, defaultEpsilon) {
+				t.Errorf("Left 1/%v: got: %v want: %v", i, got1, want1)
+			}
+
+			if !ApproximatelyEqual(got2, want2, defaultEpsilon) {
+				t.Errorf("Right 1/%v: got: %v want: %v", i, got2, want2)
+			}
+		} else {
 		}
 	}
 }
